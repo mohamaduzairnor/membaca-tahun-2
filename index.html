@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengembaraan SK Taman Skudai Baru - Wira Berhemat Air</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Fredoka for playful headers -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0f2fe;
+            user-select: none;
+        }
+        .font-fredoka {
+            font-family: 'Fredoka', cursive;
+        }
+        .btn-bounce {
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .btn-bounce:active {
+            transform: scale(0.96);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.25), 0 8px 10px -6px rgba(14, 165, 233, 0.1);
+        }
+        /* Custom Scrollbar for Leaderboard */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 8px;
+        }
+        @media print {
+            body {
+                background-color: white !important;
+            }
+            #app-container {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+            }
+            header, footer, #print-btn, #clear-btn, #back-btn {
+                display: none !important;
+            }
+            #screen-leaderboard {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-3 sm:p-6 text-slate-800">
+
+    <!-- Container Utama -->
+    <div id="app-container" class="w-full max-w-2xl bg-white rounded-3xl card-shadow overflow-hidden border-4 border-sky-300 relative min-h-[600px] flex flex-col justify-between">
+        
+        <!-- Header Aplikasi -->
+        <header class="bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 p-4 text-white text-center shadow-md relative">
+            <h1 class="font-fredoka text-xl sm:text-2xl md:text-3xl tracking-wide drop-shadow-md flex items-center justify-center gap-2">
+                <i class="fa-solid fa-droplet text-cyan-200 animate-bounce"></i>
+                Pengembaraan SK Taman Skudai Baru
+            </h1>
+            <p class="text-xs sm:text-sm text-sky-100 font-medium mt-1">Wira Berhemat Air • Bahasa Melayu Tahun 2 (M/S 36)</p>
+        </header>
+
+        <!-- Dynamic Body Area -->
+        <main id="main-content" class="p-4 sm:p-6 flex-grow flex flex-col justify-center">
+
+            <!-- 1. SKRIN PENDAFTARAN / MULA -->
+            <div id="screen-welcome" class="text-center space-y-5">
+                <div class="bg-sky-50 p-4 rounded-2xl border-2 border-sky-200">
+                    <img src="https://placehold.co/400x160/0284c7/ffffff?text=SK+Taman+Skudai+Baru+-+Gunakan+Air+Berhemat" alt="Ilustrasi Syarahan SK Taman Skudai Baru" class="w-full h-36 object-cover rounded-xl shadow-inner mb-3">
+                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                        Selamat datang ke **SK Taman Skudai Baru**! Ikuti pengembaraan syarahan penjimatan air, jawab 20 soalan cabaran, dan kumpul lencana kebanggaan kamu!
+                    </p>
+                </div>
+
+                <form id="form-login" onsubmit="startGame(event)" class="space-y-4 text-left max-w-md mx-auto">
+                    <div>
+                        <label class="block text-xs font-bold text-sky-800 uppercase tracking-wider mb-1">Nama Murid</label>
+                        <input type="text" id="input-name" required placeholder="Masukkan nama penuh kamu..." class="w-full px-4 py-3 rounded-xl border-2 border-sky-300 focus:outline-none focus:border-blue-500 text-slate-700 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-sky-800 uppercase tracking-wider mb-1">Kelas</label>
+                        <select id="input-class" required class="w-full px-4 py-3 rounded-xl border-2 border-sky-300 focus:outline-none focus:border-blue-500 text-slate-700 font-medium bg-slate-100 cursor-not-allowed">
+                            <option value="2 Intelligent" selected>2 Intelligent</option>
+                        </select>
+                    </div>
+                    <div class="pt-2 flex flex-col sm:flex-row gap-3">
+                        <button type="submit" class="flex-1 bg-gradient-to-r from-emerald-400 to-green-600 hover:from-emerald-500 hover:to-green-700 text-white font-fredoka text-lg py-3 rounded-xl shadow-lg btn-bounce flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play"></i> Mula Pengembaraan
+                        </button>
+                        <button type="button" onclick="showLeaderboard()" class="bg-amber-400 hover:bg-amber-500 text-amber-950 font-fredoka px-5 py-3 rounded-xl shadow-lg btn-bounce flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-trophy"></i> Leaderboard
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 2. SKRIN KUIZ / PERMAINAN -->
+            <div id="screen-quiz" class="hidden flex-col h-full justify-between">
+                <!-- Status Bar: Nyawa & Progress -->
+                <div class="flex items-center justify-between bg-sky-100 p-3 rounded-2xl mb-4 border border-sky-200">
+                    <!-- Progress Soalan -->
+                    <div class="flex items-center gap-2">
+                        <span class="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg font-fredoka" id="quiz-progress-text">Soalan 1/20</span>
+                    </div>
+
+                    <!-- Nyawa Indicator -->
+                    <div class="flex items-center gap-1.5" id="lives-container">
+                        <i class="fa-solid fa-heart text-red-500 text-xl animate-pulse"></i>
+                        <i class="fa-solid fa-heart text-red-500 text-xl animate-pulse"></i>
+                        <i class="fa-solid fa-heart text-red-500 text-xl animate-pulse"></i>
+                    </div>
+
+                    <!-- Skor Terkumpul -->
+                    <div class="text-right">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Skor</span>
+                        <div class="font-fredoka text-lg text-blue-700 font-bold leading-none" id="current-score">0</div>
+                    </div>
+                </div>
+
+                <!-- Kad Jalan Cerita & Soalan -->
+                <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-sky-100 shadow-sm space-y-4">
+                    <!-- Naratif Jalan Cerita -->
+                    <div class="bg-amber-50 border-l-4 border-amber-400 p-3 rounded-r-xl text-xs sm:text-sm text-amber-900 font-medium leading-relaxed flex items-start gap-2">
+                        <i class="fa-solid fa-map-location-dot text-amber-600 mt-0.5 text-base"></i>
+                        <p id="story-text">Jalan cerita SK Taman Skudai Baru akan dipaparkan di sini...</p>
+                    </div>
+
+                    <!-- Tajuk Soalan -->
+                    <h3 id="question-text" class="font-fredoka text-slate-800 text-base sm:text-lg leading-snug">
+                        Soalan akan dipaparkan di sini?
+                    </h3>
+
+                    <!-- Pilihan Jawapan -->
+                    <div id="options-container" class="grid grid-cols-1 gap-2.5 pt-1">
+                        <!-- Pilihan jawapan diisi melalui JS -->
+                    </div>
+                </div>
+
+                <!-- Feedback Visual (Betul / Salah) -->
+                <div id="feedback-message" class="hidden mt-3 p-3 rounded-xl text-center text-sm font-bold flex items-center justify-center gap-2"></div>
+            </div>
+
+            <!-- 3. SKRIN GAME OVER (NYAWA HABIS) -->
+            <div id="screen-gameover" class="hidden text-center space-y-5 py-4">
+                <div class="w-20 h-20 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner">
+                    <i class="fa-solid fa-heart-crack"></i>
+                </div>
+                <div>
+                    <h2 class="font-fredoka text-2xl text-red-600">Nyawa Kehabisan!</h2>
+                    <p class="text-slate-600 text-sm mt-1">Misi di SK Taman Skudai Baru terhenti sementara. Mari cuba sekali lagi!</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border text-slate-700 text-sm max-w-sm mx-auto">
+                    Pencapaian Terakhir: <span id="gameover-score" class="font-fredoka text-blue-600 text-base font-bold">0 mata</span>
+                </div>
+                <button onclick="restartGame()" class="bg-blue-600 hover:bg-blue-700 text-white font-fredoka px-6 py-3 rounded-xl shadow-lg btn-bounce inline-flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Cuba Lagi
+                </button>
+            </div>
+
+            <!-- 4. SKRIN KEPUTUSAN & GANJARAN (TAMAT PERMAINAN) -->
+            <div id="screen-finish" class="hidden text-center space-y-4 py-2">
+                <div class="inline-block p-3 bg-amber-100 rounded-full text-amber-500 text-4xl shadow-md animate-bounce">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                
+                <div>
+                    <h2 class="font-fredoka text-2xl sm:text-3xl text-emerald-600">Syabas & Tahniah!</h2>
+                    <p class="text-slate-600 text-xs sm:text-sm">Kamu telah tamat pengembaraan di SK Taman Skudai Baru!</p>
+                </div>
+
+                <!-- Badge Ganjaran -->
+                <div id="badge-card" class="bg-gradient-to-b from-amber-50 to-orange-50 border-2 border-amber-300 p-4 rounded-2xl max-w-sm mx-auto shadow-sm">
+                    <div class="text-xs uppercase font-bold text-amber-700 tracking-wider">Lencana Diterima</div>
+                    <div id="badge-icon" class="text-5xl my-2">🥇</div>
+                    <div id="badge-title" class="font-fredoka text-xl text-amber-900">Wira Emas SK Skudai Baru</div>
+                    <p id="badge-desc" class="text-xs text-amber-800 mt-1">Memahami keseluruhan isi syarahan dengan cemerlang!</p>
+                </div>
+
+                <!-- Ringkasan Markah -->
+                <div class="grid grid-cols-2 gap-3 max-w-sm mx-auto text-left">
+                    <div class="bg-sky-50 p-3 rounded-xl border border-sky-200">
+                        <span class="text-xs text-sky-700 font-semibold">Jumlah Skor</span>
+                        <div id="final-score" class="font-fredoka text-xl text-sky-900">100 Mata</div>
+                    </div>
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                        <span class="text-xs text-emerald-700 font-semibold">Baki Nyawa</span>
+                        <div id="final-lives" class="font-fredoka text-xl text-emerald-900">3 / 3</div>
+                    </div>
+                </div>
+
+                <!-- Butang Tindakan -->
+                <div class="flex gap-3 max-w-sm mx-auto pt-2">
+                    <button onclick="restartGame()" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-fredoka py-3 rounded-xl shadow btn-bounce flex items-center justify-center gap-1.5 text-sm">
+                        <i class="fa-solid fa-play"></i> Main Lagi
+                    </button>
+                    <button onclick="showLeaderboard()" class="flex-1 bg-amber-400 hover:bg-amber-500 text-amber-950 font-fredoka py-3 rounded-xl shadow btn-bounce flex items-center justify-center gap-1.5 text-sm">
+                        <i class="fa-solid fa-trophy"></i> Leaderboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5. SKRIN PAPAN PENDAHULU (LEADERBOARD) -->
+            <div id="screen-leaderboard" class="hidden space-y-4">
+                <div class="flex flex-wrap items-center justify-between border-b pb-3 gap-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-500 text-2xl"></i>
+                        <div>
+                            <h2 class="font-fredoka text-xl text-slate-800">Leaderboard</h2>
+                            <p class="text-xs text-slate-500">Rekod keputusan murid Kelas 2 Intelligent</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="print-btn" onclick="window.print()" class="text-xs bg-sky-100 hover:bg-sky-200 text-sky-800 px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">
+                            <i class="fa-solid fa-print"></i> Cetak / Export
+                        </button>
+                        <button id="clear-btn" onclick="clearLeaderboard()" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Senarai Rekod -->
+                <div class="max-h-72 overflow-y-auto pr-1">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead>
+                            <tr class="bg-sky-100 text-sky-900 font-bold border-b border-sky-200">
+                                <th class="p-2.5 rounded-l-lg">#</th>
+                                <th class="p-2.5">Nama Murid</th>
+                                <th class="p-2.5">Kelas</th>
+                                <th class="p-2.5 text-center">Skor</th>
+                                <th class="p-2.5 text-center">Lencana</th>
+                                <th class="p-2.5 rounded-r-lg text-center">Tarikh</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body" class="divide-y divide-slate-100">
+                            <!-- Rekod diisi secara dinamik -->
+                        </tbody>
+                    </table>
+                    <div id="empty-leaderboard" class="hidden text-center py-8 text-slate-400 text-sm">
+                        Belum ada rekod murid 2 Intelligent yang mendaftar di Leaderboard.
+                    </div>
+                </div>
+
+                <!-- Butang Kembali -->
+                <div class="pt-2 text-center">
+                    <button id="back-btn" onclick="showWelcome()" class="bg-slate-700 hover:bg-slate-800 text-white font-fredoka px-6 py-2.5 rounded-xl shadow btn-bounce text-sm inline-flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> Kembali ke Menu Utama
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-sky-50 border-t border-sky-100 p-2.5 text-center text-xs text-sky-700 font-medium">
+            Pengembaraan SK Taman Skudai Baru • BM Tahun 2 (M/S 36)
+        </footer>
+    </div>
+
+    <!-- JavaScript Game Logic -->
+    <script>
+        // Data 20 Soalan Jalan Cerita SK Taman Skudai Baru
+        const quizData = [
+            {
+                story: "CHECKPOINT 1: Dewan SK Taman Skudai Baru penuh dengan murid-murid. Murid di atas pentas memulakan ucapan hormat.",
+                question: "Siapakah kata hormat utama yang disapa pada awal syarahan ini?",
+                options: ["Guru Besar", "Peniaga Kantin", "Pengawal Keselamatan", "Ketua Murid"],
+                answer: 0
+            },
+            {
+                story: "CHECKPOINT 2: Penceramah memperkenalkan nama sekolah di hadapan majlis.",
+                question: "Apakah nama sekolah yang disebutkan dalam pengembaraan syarahan ini?",
+                options: ["Sekolah Kebangsaan Taman Skudai Baru", "Sekolah Kebangsaan Rasa Sayang", "Sekolah Kebangsaan Indah Permai", "Sekolah Kebangsaan Taman Melati"],
+                answer: 0
+            },
+            {
+                story: "CHECKPOINT 3: Penceramah mengumumkan tajuk syarahan yang bakal disampaikan.",
+                question: "Apakah tajuk syarahan penjimatan air ini?",
+                options: ["Amalan Kesihatan Diri", "Gunakan Air Secara Berhemat", "Cara Mengemas Bilik Air", "Bahaya Banjir Kilat"],
+                answer: 1
+            },
+            {
+                story: "CHECKPOINT 4: Hadirin mendengar penjelasan tentang cara penggunaan air seharian.",
+                question: "Bagaimanakah cara kita perlu menggunakan air mengikut syarahan?",
+                options: ["Secara bebas", "Secara cermat", "Secara membazir", "Secara gelojoh"],
+                answer: 1
+            },
+            {
+                story: "CHECKPOINT 5: Amaran diberikan jika penggunaan air tidak dikawal.",
+                question: "Apakah yang akan berlaku kepada sumber air jika kita tidak menggunakannya secara cermat?",
+                options: ["Sumber air semakin bertambah", "Sumber air menjadi melimpah", "Sumber air akan semakin kurang", "Sumber air menjadi berwarna-warni"],
+                answer: 2
+            },
+            {
+                story: "CHECKPOINT 6: Perubahan suasana dan cuaca diperjelaskan di hadapan murid SK Taman Skudai Baru.",
+                question: "Kekurangan sumber air akan menyebabkan suhu atau cuaca menjadi...",
+                options: ["Sangat sejuk", "Berangin", "Panas", "Hujan lebat"],
+                answer: 2
+            },
+            {
+                story: "CHECKPOINT 7: Pembentang mula berkongsi langkah penjimatan air satu per satu.",
+                question: "Berapakah bilangan cara menjimatkan air yang dinyatakan dalam syarahan?",
+                options: ["Tiga cara", "Dua cara", "Lapan cara", "Empat cara"],
+                answer: 0
+            },
+            {
+                story: "CHECKPOINT 8: Langkah pertama di bilik mandi diperjelaskan.",
+                question: "Apakah CARA PERTAMA untuk menjimatkan penggunaan air?",
+                options: ["Mandi guna air kolam", "Kurangkan masa mandi", "Mandi lima kali sehari", "Buka paip seluas-luasnya"],
+                answer: 1
+            },
+            {
+                story: "CHECKPOINT 9: Cerita diteruskan dengan amalan bilik mandi.",
+                question: "Mengapakah kita perlu mengurangkan masa mandi?",
+                options: ["Supaya cepat lapar", "Banyak air akan terbuang sekiranya kita mandi lama-lama", "Supaya baju tidak basah", "Kerana sabun mandi mahal"],
+                answer: 1
+            },
+            {
+                story: "CHECKPOINT 10: Langkah kedua semasa mandi pancuran.",
+                question: "Apakah CARA KEDUA yang disyorkan semasa mandi pancuran?",
+                options: ["Letakkan baldi berhampiran pancuran", "Gunakan cawan kecil", "Buka pintu bilik mandi", "Tutup mata rapat-rapat"],
+                answer: 0
+            },
+            {
+                story: "CHECKPOINT 11: Penggunaan semula air tadahan di rumah dan sekolah.",
+                question: "Apakah kegunaan air tadahan dalam baldi tersebut?",
+                options: ["Untuk dibuat air minuman", "Untuk membersihkan tandas atau menyiram pokok bunga", "Untuk basuh kereta jiran", "Untuk main tembak-tembak air"],
+                answer: 1
+            },
+            {
+                story: "CHECKPOINT 12: Langkah ketiga berkaitan kebersihan diri di sinki.",
+                question: "Apakah CARA KETIGA untuk mengelakkan pembaziran air?",
+                options: ["Elakkan membuka pili berterusan ketika membasuh muka atau menggosok gigi", "Jangan basuh muka langsung", "Menggosok gigi di tepi sungai", "Menggunakan air botol mineral sahaja"],
+                answer: 0
+            },
+            {
+                story: "CHECKPOINT 13: Amalan bijak semasa gosok gigi.",
+                question: "Apakah yang sepatutnya diguna untuk menadah air semasa menggosok gigi?",
+                options: ["Gunakan air pancuran terus", "Gunakan air yang ditadah di dalam bekas", "Gunakan air hujan", "Gunakan air paip jiran"],
+                answer: 1
+            },
+            {
+                story: "CHECKPOINT 14: Syarahan di Dewan SK Taman Skudai Baru sampai ke penghujung.",
+                question: "Apakah kesimpulan utama syarahan ini?",
+                options: ["Gunakanlah air secara berhemat", "Mandi mestilah lama-lama", "Biarkan pili air menitis", "Beli air botol banyak-banyak"],
+                answer: 0
+            },
+            {
+                story: "CHECKPOINT 15: Penjelasan tentang kebaikan amalan berhemat.",
+                question: "Penggunaan air yang berhemat akan dapat mengelakkan...",
+                options: ["Keuntungan", "Pembaziran", "Kebersihan", "Kesihatan"],
+                answer: 1
+            },
+            {
+                story: "CHECKPOINT 16: Ucapan sopan di akhir syarahan.",
+                question: "Apakah ucapan penutup syarahan yang disampaikan?",
+                options: ["Selamat tinggal semua", "Sekian, terima kasih", "Jumpa lagi esok", "Harap semua faham"],
+                answer: 1
+            },
+            {
+                story: "CHECKPOINT 17: Ujian tatabahasa & pemahaman kata.",
+                question: "Apakah maksud perkataan 'berhemat' dalam syarahan ini?",
+                options: ["Cermat atau jimat", "Gelojoh atau boros", "Laju atau cepat", "Sombong atau megah"],
+                answer: 0
+            },
+            {
+                story: "CHECKPOINT 18: Situasi di kawasan sekolah SK Taman Skudai Baru.",
+                question: "Apakah tindakan kamu jika ternampak pili air di tandas sekolah menitis tanpa ditutup?",
+                options: ["Biarkan sahaja", "Tutup pili air dengan rapat", "Main air tersebut", "Pecahkan paip air"],
+                answer: 1
+            },
+            {
+                story: "CHECKPOINT 19: Jenis persembahan petikan bukan sastera.",
+                question: "Apakah jenis penyampaian yang dipersembahkan dalam petikan muka surat 36 ini?",
+                options: ["Syarahan", "Pantun 4 Kerat", "Lagu Kanak-kanak", "Berita TV"],
+                answer: 0
+            },
+            {
+                story: "CHECKPOINT 20: Checkpoint terakhir Pengembaraan SK Taman Skudai Baru!",
+                question: "Mengapakah kita digalakkan menyiram pokok bunga menggunakan air tadahan?",
+                options: ["Dapat menjimatkan penggunaan air bersih", "Supaya pokok cepat mati", "Kerana pokok suka air kotor sahaja", "Supaya tanah menjadi berlumpur"],
+                answer: 0
+            }
+        ];
+
+        // Status Permainan
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lives = 3;
+        let playerInfo = { name: '', playerClass: '2 Intelligent' };
+
+        // Elemen UI
+        const screenWelcome = document.getElementById('screen-welcome');
+        const screenQuiz = document.getElementById('screen-quiz');
+        const screenGameOver = document.getElementById('screen-gameover');
+        const screenFinish = document.getElementById('screen-finish');
+        const screenLeaderboard = document.getElementById('screen-leaderboard');
+
+        // Fungsi Memulakan Permainan
+        function startGame(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('input-name').value.trim();
+            const classInput = document.getElementById('input-class').value;
+
+            if (!nameInput || !classInput) return;
+
+            playerInfo.name = nameInput;
+            playerInfo.playerClass = classInput;
+
+            // Reset Game Variables
+            currentQuestionIndex = 0;
+            score = 0;
+            lives = 3;
+
+            // Kemaskini Paparan UI
+            showScreen(screenQuiz);
+            updateLivesDisplay();
+            loadQuestion();
+        }
+
+        // Papar Soalan
+        function loadQuestion() {
+            const data = quizData[currentQuestionIndex];
+            
+            document.getElementById('quiz-progress-text').innerText = `Soalan ${currentQuestionIndex + 1}/${quizData.length}`;
+            document.getElementById('current-score').innerText = score;
+            document.getElementById('story-text').innerText = data.story;
+            document.getElementById('question-text').innerText = data.question;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            // Sembunyikan mesej maklum balas
+            const feedbackMsg = document.getElementById('feedback-message');
+            feedbackMsg.className = "hidden mt-3 p-3 rounded-xl text-center text-sm font-bold flex items-center justify-center gap-2";
+
+            data.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3.5 rounded-xl border-2 border-sky-200 hover:border-blue-400 bg-sky-50/50 hover:bg-sky-100/60 font-medium text-slate-700 transition flex items-center gap-3 btn-bounce text-sm sm:text-base";
+                btn.onclick = () => checkAnswer(index);
+
+                const badge = document.createElement('span');
+                badge.className = "w-7 h-7 rounded-lg bg-sky-200 text-sky-800 font-bold text-xs flex items-center justify-center flex-shrink-0 font-fredoka";
+                badge.innerText = String.fromCharCode(65 + index); // A, B, C, D
+
+                const text = document.createElement('span');
+                text.innerText = option;
+
+                btn.appendChild(badge);
+                btn.appendChild(text);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // Semak Jawapan
+        function checkAnswer(selectedIndex) {
+            const data = quizData[currentQuestionIndex];
+            const feedbackMsg = document.getElementById('feedback-message');
+            const buttons = document.querySelectorAll('#options-container button');
+
+            // Nyahaktifkan semua butang pilihan
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === data.answer) {
+                // Jawapan BETUL
+                score += 5; // 5 Mata setiap soalan betul (Maksimum 100)
+                document.getElementById('current-score').innerText = score;
+                
+                buttons[selectedIndex].classList.remove('bg-sky-50/50', 'border-sky-200');
+                buttons[selectedIndex].classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
+
+                feedbackMsg.className = "mt-3 p-3 rounded-xl text-center text-sm font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center justify-center gap-2 animate-bounce";
+                feedbackMsg.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i> Tahniah! Jawapan kamu BETUL (+5 Mata)';
+            } else {
+                // Jawapan SALAH
+                lives -= 1;
+                updateLivesDisplay();
+
+                buttons[selectedIndex].classList.remove('bg-sky-50/50', 'border-sky-200');
+                buttons[selectedIndex].classList.add('bg-red-100', 'border-red-400', 'text-red-900');
+
+                // Tunjukkan jawapan yang betul
+                buttons[data.answer].classList.remove('bg-sky-50/50', 'border-sky-200');
+                buttons[data.answer].classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
+
+                feedbackMsg.className = "mt-3 p-3 rounded-xl text-center text-sm font-bold bg-red-100 text-red-800 border border-red-300 flex items-center justify-center gap-2";
+                feedbackMsg.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-600 text-lg"></i> Alamak! Jawapan kurang tepat. Nyawa berkurang 1.';
+            }
+
+            // Semak status permainan
+            setTimeout(() => {
+                if (lives <= 0) {
+                    // Game Over
+                    document.getElementById('gameover-score').innerText = `${score} Mata`;
+                    showScreen(screenGameOver);
+                } else {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex < quizData.length) {
+                        loadQuestion();
+                    } else {
+                        // Tamat Kuiz (Berjaya)
+                        finishGame();
+                    }
+                }
+            }, 1400);
+        }
+
+        // Kemaskini Paparan Nyawa
+        function updateLivesDisplay() {
+            const container = document.getElementById('lives-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const heart = document.createElement('i');
+                if (i < lives) {
+                    heart.className = "fa-solid fa-heart text-red-500 text-xl animate-pulse";
+                } else {
+                    heart.className = "fa-solid fa-heart text-slate-300 text-xl";
+                }
+                container.appendChild(heart);
+            }
+        }
+
+        // Tamat Permainan & Pemberian Badge
+        function finishGame() {
+            showScreen(screenFinish);
+
+            document.getElementById('final-score').innerText = `${score} / 100 Mata`;
+            document.getElementById('final-lives').innerText = `${lives} / 3 Nyawa`;
+
+            // Tentukan Badge berdasarkan skor
+            let badgeName = "";
+            let badgeIcon = "";
+            let badgeDesc = "";
+
+            if (score >= 90) {
+                badgeName = "Wira Emas SK Skudai Baru";
+                badgeIcon = "🏆";
+                badgeDesc = "Cemerlang! Kamu adalah Wira Emas Penyelamat Air!";
+            } else if (score >= 70) {
+                badgeName = "Penyelamat Air Perak";
+                badgeIcon = "🥇";
+                badgeDesc = "Tahniah! Kamu memahami isi syarahan dengan amat baik!";
+            } else {
+                badgeName = "Pembantu Berhemat Gangsa";
+                badgeIcon = "🥉";
+                badgeDesc = "Syabas! Teruskan amalan jimat air di rumah dan sekolah!";
+            }
+
+            document.getElementById('badge-title').innerText = badgeName;
+            document.getElementById('badge-icon').innerText = badgeIcon;
+            document.getElementById('badge-desc').innerText = badgeDesc;
+
+            // Simpan Rekod dalam LocalStorage untuk Leaderboard
+            saveToLeaderboard({
+                name: playerInfo.name,
+                playerClass: playerInfo.playerClass,
+                score: score,
+                lives: lives,
+                badge: badgeName,
+                date: new Date().toLocaleDateString('ms-MY')
+            });
+        }
+
+        // Simpan Data ke LocalStorage
+        function saveToLeaderboard(record) {
+            let leaderboard = JSON.parse(localStorage.getItem('skudai_baru_leaderboard')) || [];
+            leaderboard.push(record);
+            // Susun mengikut Skor Tertinggi
+            leaderboard.sort((a, b) => b.score - a.score || b.lives - a.lives);
+            localStorage.setItem('skudai_baru_leaderboard', JSON.stringify(leaderboard));
+        }
+
+        // Paparkan Leaderboard
+        function showLeaderboard() {
+            showScreen(screenLeaderboard);
+            const body = document.getElementById('leaderboard-body');
+            const emptyMsg = document.getElementById('empty-leaderboard');
+            body.innerHTML = '';
+
+            let leaderboard = JSON.parse(localStorage.getItem('skudai_baru_leaderboard')) || [];
+
+            if (leaderboard.length === 0) {
+                emptyMsg.classList.remove('hidden');
+            } else {
+                emptyMsg.classList.add('hidden');
+                leaderboard.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    tr.className = index % 2 === 0 ? "bg-white" : "bg-sky-50/40";
+                    tr.innerHTML = `
+                        <td class="p-2.5 font-bold text-sky-800">${index + 1}</td>
+                        <td class="p-2.5 font-semibold text-slate-800">${escapeHtml(item.name)}</td>
+                        <td class="p-2.5 text-slate-600 font-medium">${escapeHtml(item.playerClass)}</td>
+                        <td class="p-2.5 text-center font-fredoka text-blue-700 font-bold">${item.score}</td>
+                        <td class="p-2.5 text-center text-xs font-semibold text-amber-800 bg-amber-50 rounded-lg">${item.badge}</td>
+                        <td class="p-2.5 text-center text-xs text-slate-500">${item.date || '-'}</td>
+                    `;
+                    body.appendChild(tr);
+                });
+            }
+        }
+
+        // Reset Leaderboard
+        function clearLeaderboard() {
+            if (confirm("Adakah anda pasti mahu memadam semua rekod murid di Leaderboard?")) {
+                localStorage.removeItem('skudai_baru_leaderboard');
+                showLeaderboard();
+            }
+        }
+
+        // Fungsi Bantu Menukar Skrin
+        function showScreen(screenToShow) {
+            [screenWelcome, screenQuiz, screenGameOver, screenFinish, screenLeaderboard].forEach(s => s.classList.add('hidden'));
+            screenToShow.classList.remove('hidden');
+        }
+
+        function showWelcome() {
+            showScreen(screenWelcome);
+        }
+
+        function restartGame() {
+            showScreen(screenWelcome);
+        }
+
+        // Keselamatan Input (XSS protection)
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
